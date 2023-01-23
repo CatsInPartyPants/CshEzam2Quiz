@@ -43,6 +43,8 @@ namespace CshEzam2Quiz
             string tempLogin;
             string tempPassword;
             string birthDayString;
+            bool alreadyExists = false;
+
             Console.WriteLine("Введите логин:");
             tempLogin = Console.ReadLine();
             Console.WriteLine("Введите пароль:");
@@ -51,14 +53,37 @@ namespace CshEzam2Quiz
             birthDayString = Console.ReadLine();
             string[] birthDayArr = birthDayString.Split('.');
             DateTime birthDay = new DateTime(Int32.Parse(birthDayArr[2]), Int32.Parse(birthDayArr[1]), Int32.Parse(birthDayArr[0]));
-            Console.WriteLine(birthDay.ToShortDateString());
 
-            using (StreamWriter sw = File.AppendText("RegisteredUsers.txt"))
+            using (StreamReader sr = File.OpenText("RegisteredUsers.txt"))
             {
-                sw.WriteLine($"{tempLogin}:{tempPassword}:{birthDay.ToShortDateString()}");
+                string temp = sr.ReadToEnd();
+                string[] users = temp.Split('\n');
+
+                foreach (string user in users)
+                {
+                    string[] data = user.Split(':');
+                    if (data[0] == tempLogin)
+                        alreadyExists = true;
+                }
             }
-            Console.WriteLine("Вы успешно зарегистрировались, пожалуйста пройдите процесс авторизации.");
-            Console.ReadKey();
+
+
+            if (alreadyExists == false)
+            {
+                using (StreamWriter sw = File.AppendText("RegisteredUsers.txt"))
+                {
+                    sw.WriteLine($"{tempLogin}:{tempPassword}:{birthDay.ToShortDateString()}");
+                }
+                Console.WriteLine("Вы успешно зарегистрировались, пожалуйста пройдите процесс авторизации.");
+                Console.ReadKey();
+                Console.Clear();
+            }
+            else
+            {
+                Console.WriteLine("Указанный пользователь уже существует. Попробуйте ввести логин или пароль или выберете иное имя пользователя.");
+                Console.ReadKey();
+                Console.Clear();
+            }
         }
 
         public bool LogIn()
@@ -88,6 +113,7 @@ namespace CshEzam2Quiz
                 Console.Clear();
                 Console.WriteLine($"Добро пожаловать, {tempLogin}.");
                 Console.ReadKey();
+                //создать пользователя
                 return true;
             }
            else
