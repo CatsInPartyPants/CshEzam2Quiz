@@ -29,6 +29,11 @@ namespace CshEzam2Quiz
             _birthDay=newBirthDAy;
         }
 
+        public override string ToString()
+        {
+            return $"{_login}, {_password}, {_birthDay.ToString()}";
+        }
+
         // находит логин в файле и меняет его пароль и день рождения
         public void SaveToFile(string login)
         {

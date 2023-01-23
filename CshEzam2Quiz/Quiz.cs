@@ -9,6 +9,8 @@ namespace CshEzam2Quiz
 {
     internal class Quiz
     {
+
+        User user;
         public void HelloMessage()
         {
             int userChoise = -1;
@@ -91,6 +93,8 @@ namespace CshEzam2Quiz
             bool logIn = false;
             string tempLogin;
             string tempPassword;
+            string[] birthDay;
+            DateTime birthDay2 = new DateTime();
             Console.WriteLine("Введите логин:");
             tempLogin = Console.ReadLine();
             Console.WriteLine("Введите пароль:");
@@ -105,15 +109,23 @@ namespace CshEzam2Quiz
                 {
                     string[] data = user.Split(':');
                     if (data[0] == tempLogin && data[1] == tempPassword)
+                    {
                         logIn = true;
+                        birthDay = data[2].Split('.');
+                        birthDay2 = new DateTime(Int32.Parse(birthDay[2]), Int32.Parse(birthDay[1]), Int32.Parse(birthDay[0]));
+                    }
+                    
                 }
             }
            if(logIn)
             {
                 Console.Clear();
                 Console.WriteLine($"Добро пожаловать, {tempLogin}.");
-                Console.ReadKey();
+                
                 //создать пользователя
+                user = new User(tempLogin, tempPassword, birthDay2);
+                Console.WriteLine($"{user.ToString()}");
+                Console.ReadKey();
                 return true;
             }
            else
