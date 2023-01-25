@@ -10,8 +10,8 @@ namespace CshEzam2Quiz
     internal class Quiz
     {
 
-        User user;
-        public void HelloMessage()
+        User _user;
+        public void ShowLogInMenu()
         {
             int userChoise = -1;
             bool isLogIn = false;
@@ -37,7 +37,15 @@ namespace CshEzam2Quiz
                 }
             } while (userChoise != 0 && isLogIn == false);
             
-            //тут может быть старт игры
+            if(isLogIn == true)
+            {
+                ShowUserMenu();
+            }
+            else
+            {
+                Console.WriteLine("До свидания.");
+                Console.ReadKey();
+            }
         }
 
         public void Register()
@@ -121,11 +129,8 @@ namespace CshEzam2Quiz
             {
                 Console.Clear();
                 Console.WriteLine($"Добро пожаловать, {tempLogin}.");
-                
                 //создать пользователя
-                user = new User(tempLogin, tempPassword, birthDay2);
-                Console.WriteLine($"{user.ToString()}");
-                Console.ReadKey();
+                _user = new User(tempLogin, tempPassword, birthDay2);
                 return true;
             }
            else
@@ -136,6 +141,72 @@ namespace CshEzam2Quiz
                 return false;
             }
 
+        }
+
+        public void ShowUserMenu()
+        {
+            int userChoise;
+            do
+            {
+                Console.Clear();
+                Console.WriteLine($"Добрый день, {_user.ShowName()}");
+                Console.WriteLine("1. Старт новой викторины.");
+                Console.WriteLine("2. Посмотреть результаты прошлых викторин.");
+                Console.WriteLine("3. Посмотреть топ 20 по конкретной викторине.");
+                Console.WriteLine("4. Изменить пользовательские настойки.");
+                Console.WriteLine("0. Выход.");
+                
+                userChoise = Int32.Parse(Console.ReadLine());
+
+                switch (userChoise)
+                {
+                    case 1:
+                        StartNewQuiz();
+                        break;
+                    case 2:
+                        ShowMyResults();
+                        break;
+                    case 3:
+                        ShowTop20();
+                        break;
+                    case 4:
+                        ChangeUserSettings();
+                        break;
+                    default:
+                        break;
+                }
+            } while (userChoise != 0);
+        }
+
+        public void StartNewQuiz()
+        {
+
+        }
+        public void ShowMyResults()
+        {
+
+        }
+
+        public void ShowTop20()
+        {
+
+        }
+
+        public void ChangeUserSettings()
+        {
+            int userSettingsChoise;
+            
+            Console.WriteLine("1. Изменить пароль.\n2. Изменить дату рождения");
+            userSettingsChoise = Int32.Parse(Console.ReadLine());
+            
+            if(userSettingsChoise == 1)
+            {
+                string newPassword;
+                Console.WriteLine("Введите новый пароль:");
+                newPassword = Console.ReadLine();
+                _user.ChangePassword(newPassword);
+
+            }
         }
     }
 }

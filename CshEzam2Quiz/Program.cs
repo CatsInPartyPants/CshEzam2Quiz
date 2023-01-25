@@ -11,7 +11,7 @@ namespace CshEzam2Quiz
         static void Main(string[] args)
         {
             Quiz q = new Quiz();
-            q.HelloMessage();
+            q.ShowLogInMenu();
         }
     }
 }
