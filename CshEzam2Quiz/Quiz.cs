@@ -205,7 +205,10 @@ namespace CshEzam2Quiz
                 Console.WriteLine("Введите новый пароль:");
                 newPassword = Console.ReadLine();
                 _user.ChangePassword(newPassword);
-
+            }
+            else if(userSettingsChoise == 2)
+            {
+                _user.ChangeBirthDay(); //HERE
             }
         }
     }
