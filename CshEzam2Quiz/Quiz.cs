@@ -265,7 +265,7 @@ namespace CshEzam2Quiz
                 foreach(string user in users)
                 {
                     string[] data = user.Split(':');
-                    try
+                    try // not working
                     {
                         if (data[2] == @"Quiz/QuizGeography.txt")
                             quizName = "География";
