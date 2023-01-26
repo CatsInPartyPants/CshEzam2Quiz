@@ -181,6 +181,79 @@ namespace CshEzam2Quiz
         public void StartNewQuiz()
         {
 
+            int userChoise;
+            int points = 0;
+            string fileName;
+            string userQuizAnswer = "";
+
+            Console.WriteLine("Выберете викторину:");
+            Console.WriteLine("1. География.");
+            Console.WriteLine("2. Наука.");
+            Console.WriteLine("3. История.");
+
+            userChoise = Int32.Parse(Console.ReadLine());
+            
+            switch(userChoise)
+            {
+                case 1:
+                    fileName = @"Quiz/QuizGeography.txt";
+                    break;
+                case 2:
+                    fileName = @"Quiz/QuizScience.txt";
+                    break;
+                case 3:
+                    fileName = @"Quiz/QuizHistory.txt";
+                    break;
+                default:
+                    fileName = @"Quiz/QuizGeography.txt";
+                    break;
+            }
+
+            //проводим викторину, читаем вопросы из файла и сравниваем ответ пользователя с верным ответом
+            using (StreamReader sr = File.OpenText(fileName))
+            {
+                string temp = sr.ReadToEnd();
+                string[] questions = temp.Split('\n');
+
+                foreach (string question in questions)
+                {
+                    string[] data = { };
+                    data = question.Split(':');
+                    try
+                    {
+                        Console.WriteLine(data[0]);
+                        Console.WriteLine(data[1]);
+                        Console.WriteLine(data[2]);
+                        Console.WriteLine(data[3]);
+                        Console.WriteLine(data[4]);
+                        userQuizAnswer = Console.ReadLine();
+                        data[5] = data[5].Substring(0, data[5].Length - 1); //была проблема с символом /n в конце, по этому equals работал некорректно
+                        if (String.Equals(userQuizAnswer.ToUpper(), data[5].ToUpper()))
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Верно!");
+                            points++;
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine($"Нет, правильный ответ:{data[5]}");
+                        }
+                    }
+                    catch (Exception ex) {
+                        Console.WriteLine("Конец");
+                    }
+                }
+                Console.WriteLine($"Количество набранных баллов: {points}");
+                Console.ReadKey();
+
+                //запись результатов в файл
+                using(StreamWriter sw = File.AppendText("Results.txt"))
+                {
+                    sw.WriteLine($"{_user.ShowName()}:{points}:{fileName}");
+                }
+
+            }
         }
         public void ShowMyResults()
         {

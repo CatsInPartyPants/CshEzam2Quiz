@@ -12,6 +12,7 @@ namespace CshEzam2Quiz
         {
             Quiz q = new Quiz();
             q.ShowLogInMenu();
+
         }
     }
 }
