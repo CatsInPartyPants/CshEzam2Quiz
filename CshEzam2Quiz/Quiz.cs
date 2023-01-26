@@ -257,7 +257,37 @@ namespace CshEzam2Quiz
         }
         public void ShowMyResults()
         {
+            string quizName = "";
+            using(StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
+            {
+                string temp = sr.ReadToEnd();
+                string[] users = temp.Split('\n');
+                foreach(string user in users)
+                {
+                    string[] data = user.Split(':');
+                    try
+                    {
+                        if (data[2] == @"Quiz/QuizGeography.txt")
+                            quizName = "География";
+                        else if (data[2] == @"Quiz/QuizScience.txt")
+                            quizName = "Наука";
+                        else if (data[2] == @"Quiz/QuizHistory.txt")
+                            quizName = "История";
 
+                        if (data[0] == _user.ShowName())
+                        {
+                            Console.WriteLine($"{_user.ShowName()}, Количество баллов: {data[1]}, по викторине {quizName}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.ReadKey();
+                    }
+
+                    
+                }
+                Console.ReadKey();
+            }
         }
 
         public void ShowTop20()
