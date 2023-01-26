@@ -82,7 +82,7 @@ namespace CshEzam2Quiz
             {
                 using (StreamWriter sw = File.AppendText("RegisteredUsers.txt"))
                 {
-                    sw.WriteLine($"{tempLogin}:{tempPassword}:{birthDay.ToShortDateString()}");
+                    sw.Write($"\n{tempLogin}:{tempPassword}:{birthDay.ToShortDateString()}");
                 }
                 Console.WriteLine("Вы успешно зарегистрировались, пожалуйста пройдите процесс авторизации.");
                 Console.ReadKey();
@@ -208,7 +208,9 @@ namespace CshEzam2Quiz
             }
             else if(userSettingsChoise == 2)
             {
-                _user.ChangeBirthDay(); //HERE
+                Console.WriteLine("Введите новую дату рождения в формате дд.мм.гггг");
+                DateTime newBD = DateTime.Parse(Console.ReadLine());
+                _user.ChangeBirthDay(newBD);
             }
         }
     }

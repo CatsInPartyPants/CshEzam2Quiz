@@ -23,7 +23,7 @@ namespace CshEzam2Quiz
         public void ChangePassword(string newPass)
         {
             _password = newPass;
-            Stack<string> newUsers = new Stack<string>();
+            Queue<string> newUsers = new Queue<string>();
 
             using (StreamReader sr = File.OpenText("RegisteredUsers.txt"))
             {
@@ -33,32 +33,77 @@ namespace CshEzam2Quiz
                 foreach (string user in users)
                 {
                     string[] data = user.Split(':');
-                    if (data[0] != this._login)
+                    if (data[0] != this._login && data[0].Length > 0)
                     {
-                        newUsers.Append($"{data[0]}:{data[1]}:{data[2]}");
-                    }
-                        
+                        newUsers.Enqueue(user);
+                    }    
                 }
+
             }
 
-            using (StreamWriter sw = File.CreateText("RegisteredUsers.txt"))
+            if (newUsers.Count > 0)
             {
-                sw.WriteLine($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
-                foreach (string user in newUsers)
+                using (StreamWriter sw = File.CreateText("RegisteredUsers.txt"))
                 {
-                    sw.WriteLine(user);
+                    sw.WriteLine($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
+                    foreach (string user in newUsers)
+                    {
+                        if(user.Length > 0 && !user.StartsWith(" "))
+                            sw.WriteLine(user);
+                    }
                 }
+            }
+            else
+            {
+                Console.WriteLine("Список затерт будет.");
+                Console.ReadKey();
             }
         }
 
         public void ChangeBirthDay(DateTime newBirthDAy)
         {
             _birthDay=newBirthDAy;
+            Queue<string> newUsers = new Queue<string>();
+
+            using (StreamReader sr = File.OpenText("RegisteredUsers.txt"))
+            {
+                string temp = sr.ReadToEnd();
+                string[] users = temp.Split('\n');
+
+                foreach (string user in users)
+                {
+                    string[] data = user.Split(':');
+                    if (data[0] != this._login && data[0].Length > 0)
+                    {
+                        newUsers.Enqueue(user);
+                    }
+                }
+
+            }
+
+            if (newUsers.Count > 0)
+            {
+                using (StreamWriter sw = File.CreateText("RegisteredUsers.txt"))
+                {
+                    foreach (string user in newUsers)
+                    {
+                        if (user.Length > 0)
+                            sw.WriteLine(user);
+                    }
+                    sw.WriteLine($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Список затерт будет.");
+                Console.ReadKey();
+            }
+
         }
 
         public override string ToString()
         {
-            return $"{_login}, {_password}, {_birthDay.ToString()}";
+            return $"{_login}, {_password}, {_birthDay.ToShortDateString()}";
         }
 
         public string ShowName()
