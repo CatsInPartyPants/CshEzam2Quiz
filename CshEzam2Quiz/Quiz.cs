@@ -48,7 +48,7 @@ namespace CshEzam2Quiz
             }
         }
 
-        public void Register()
+        private void Register()
         {
             string tempLogin;
             string tempPassword;
@@ -96,7 +96,7 @@ namespace CshEzam2Quiz
             }
         }
 
-        public bool LogIn()
+        private bool LogIn()
         {
             bool logIn = false;
             string tempLogin;
@@ -143,7 +143,7 @@ namespace CshEzam2Quiz
 
         }
 
-        public void ShowUserMenu()
+        private void ShowUserMenu()
         {
             int userChoise;
             do
@@ -178,7 +178,7 @@ namespace CshEzam2Quiz
             } while (userChoise != 0);
         }
 
-        public void StartNewQuiz()
+        private void StartNewQuiz()
         {
 
             int userChoise;
@@ -255,7 +255,7 @@ namespace CshEzam2Quiz
 
             }
         }
-        public void ShowMyResults()
+        private void ShowMyResults()
         {
             string quizName = "";
             using(StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
@@ -265,8 +265,11 @@ namespace CshEzam2Quiz
                 foreach(string user in users)
                 {
                     string[] data = user.Split(':');
+                   
                     try // not working
                     {
+                        data[2] = data[2].Substring(0, data[2].Length - 1);
+
                         if (data[2] == @"Quiz/QuizGeography.txt")
                             quizName = "География";
                         else if (data[2] == @"Quiz/QuizScience.txt")
@@ -290,12 +293,12 @@ namespace CshEzam2Quiz
             }
         }
 
-        public void ShowTop20()
+        private void ShowTop20()
         {
 
         }
 
-        public void ChangeUserSettings()
+        private void ChangeUserSettings()
         {
             int userSettingsChoise;
             
