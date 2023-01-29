@@ -295,8 +295,101 @@ namespace CshEzam2Quiz
 
         private void ShowTop20()
         {
+            int userChoise = 0;
+            //словари для хранения результатов по каждой викторине
+            Dictionary<string, int> ResultsGeography = new Dictionary<string, int>();
+            Dictionary<string, int> ResultsHistory = new Dictionary<string, int>();
+            Dictionary<string, int> ResultsScience = new Dictionary<string, int>();
 
+            using (StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
+            {
+                string temp = sr.ReadToEnd();
+                string[] users = temp.Split('\n');
+
+                foreach (string user in users)
+                {
+                    string[] data = user.Split(':');
+                    //заполняем словари
+                    try
+                    {
+                        data[2] = data[2].Substring(0, data[2].Length - 1);
+
+                        if (data[2] == @"Quiz/QuizGeography.txt")
+                            ResultsGeography.Add(data[0], Int32.Parse(data[1]));
+                        else if (data[2] == @"Quiz/QuizScience.txt")
+                            ResultsScience.Add(data[0], Int32.Parse(data[1]));
+                        else if (data[2] == @"Quiz/QuizHistory.txt")
+                            ResultsHistory.Add(data[0], Int32.Parse(data[1]));
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+                //сортируем словари
+                var sortedDictHistory = from entry in ResultsHistory orderby entry.Value ascending select entry;
+                var sortedDictGeography = from entry in ResultsGeography orderby entry.Value ascending select entry;
+                var sortedDictScience = from entry in ResultsScience orderby entry.Value ascending select entry;
+
+                Console.Clear();
+                Console.WriteLine("По какой викторине вы хотите увидеть таблицу лидеров?");
+                Console.WriteLine("1. История");
+                Console.WriteLine("2. География");
+                Console.WriteLine("3. Наука");
+                userChoise = Int32.Parse(Console.ReadLine());
+
+                switch(userChoise)
+                {
+                    case 1:
+                        if(sortedDictHistory != null)
+                        {
+                            foreach(KeyValuePair<string, int> entry in sortedDictHistory)
+                            {
+                                Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                            }
+                            Console.ReadKey();
+                        }else
+                        {
+                            Console.WriteLine("Список пуст.");
+                            Console.ReadKey();
+                        }
+                        break;
+                    case 2:
+                        if (sortedDictGeography != null)
+                        {
+                            foreach (KeyValuePair<string, int> entry in sortedDictGeography)
+                            {
+                                Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                            }
+                            Console.ReadKey();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Список пуст.");
+                            Console.ReadKey();
+                        }
+                        break;
+                    case 3:
+                        if (sortedDictScience != null)
+                        {
+                            foreach (KeyValuePair<string, int> entry in sortedDictScience)
+                            {
+                                Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                            }
+                            Console.ReadKey();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Список пуст.");
+                            Console.ReadKey();
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+            }
         }
+
 
         private void ChangeUserSettings()
         {
