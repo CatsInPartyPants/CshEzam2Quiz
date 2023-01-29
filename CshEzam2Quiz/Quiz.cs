@@ -326,9 +326,9 @@ namespace CshEzam2Quiz
                     }
                 }
                 //сортируем словари
-                var sortedDictHistory = from entry in ResultsHistory orderby entry.Value ascending select entry;
-                var sortedDictGeography = from entry in ResultsGeography orderby entry.Value ascending select entry;
-                var sortedDictScience = from entry in ResultsScience orderby entry.Value ascending select entry;
+                var sortedDictHistory = from entry in ResultsHistory orderby entry.Value descending select entry;
+                var sortedDictGeography = from entry in ResultsGeography orderby entry.Value descending select entry;
+                var sortedDictScience = from entry in ResultsScience orderby entry.Value descending select entry;
 
                 Console.Clear();
                 Console.WriteLine("По какой викторине вы хотите увидеть таблицу лидеров?");
