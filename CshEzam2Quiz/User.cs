@@ -45,11 +45,11 @@ namespace CshEzam2Quiz
             {
                 using (StreamWriter sw = File.CreateText("RegisteredUsers.txt"))
                 {
-                    sw.WriteLine($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
+                    sw.Write($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
                     foreach (string user in newUsers)
                     {
                         if(user.Length > 0 && !user.StartsWith(" "))
-                            sw.WriteLine(user);
+                            sw.Write($"\n{user}");
                     }
                 }
             }
@@ -85,12 +85,13 @@ namespace CshEzam2Quiz
             {
                 using (StreamWriter sw = File.CreateText("RegisteredUsers.txt"))
                 {
+                    sw.Write($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
                     foreach (string user in newUsers)
                     {
                         if (user.Length > 0)
-                            sw.WriteLine(user);
+                            sw.WriteLine($"\n{user}");
                     }
-                    sw.WriteLine($"{_login}:{_password}:{_birthDay.ToShortDateString()}");
+                    
                 }
             }
             else

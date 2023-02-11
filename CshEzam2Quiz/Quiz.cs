@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Runtime.Remoting.Contexts;
+using System.Xml.Linq;
 
 namespace CshEzam2Quiz
 {
@@ -15,28 +17,34 @@ namespace CshEzam2Quiz
         {
             int userChoise = -1;
             bool isLogIn = false;
-            do
+            try
             {
-                Console.WriteLine("Добрый день, Вас приветствует игра \"Викторина\"!");
-                Console.WriteLine("Если вы зарегистрированы, нажмите 1 для ввода логина и пароля.");
-                Console.WriteLine("Если вы желаете зарегистрироваться, нажмите 2.");
-                Console.WriteLine("Нажмите 0 для выхода.");
-
-                userChoise = Int32.Parse(Console.ReadLine());
-
-                switch (userChoise)
+                do
                 {
-                    case 1:
-                        isLogIn = LogIn();
-                        break;
-                    case 2:
-                        Register();
-                        break;
-                    default:
-                        break;
-                }
-            } while (userChoise != 0 && isLogIn == false);
-            
+                    Console.Clear();
+                    Console.WriteLine("Добрый день, Вас приветствует игра \"Викторина\"!");
+                    Console.WriteLine("Если вы зарегистрированы, нажмите 1 для ввода логина и пароля.");
+                    Console.WriteLine("Если вы желаете зарегистрироваться, нажмите 2.");
+                    Console.WriteLine("Нажмите 0 для выхода.");
+
+                    userChoise = Int32.Parse(Console.ReadLine());
+
+                    switch (userChoise)
+                    {
+                        case 1:
+                            isLogIn = LogIn();
+                            break;
+                        case 2:
+                            Register();
+                            break;
+                        default:
+                            break;
+                    }
+                } while (userChoise != 0 && isLogIn == false);
+            }catch(Exception ex) {
+                Console.WriteLine(ex);
+            }
+
             if(isLogIn == true)
             {
                 ShowUserMenu();
@@ -64,16 +72,19 @@ namespace CshEzam2Quiz
             string[] birthDayArr = birthDayString.Split('.');
             DateTime birthDay = new DateTime(Int32.Parse(birthDayArr[2]), Int32.Parse(birthDayArr[1]), Int32.Parse(birthDayArr[0]));
 
-            using (StreamReader sr = File.OpenText("RegisteredUsers.txt"))
+            if (File.Exists("RegisteredUsers.txt"))
             {
-                string temp = sr.ReadToEnd();
-                string[] users = temp.Split('\n');
-
-                foreach (string user in users)
+                using (StreamReader sr = File.OpenText("RegisteredUsers.txt"))
                 {
-                    string[] data = user.Split(':');
-                    if (data[0] == tempLogin)
-                        alreadyExists = true;
+                    string temp = sr.ReadToEnd();
+                    string[] users = temp.Split('\n');
+
+                    foreach (string user in users)
+                    {
+                        string[] data = user.Split(':');
+                        if (data[0] == tempLogin)
+                            alreadyExists = true;
+                    }
                 }
             }
 
@@ -82,7 +93,7 @@ namespace CshEzam2Quiz
             {
                 using (StreamWriter sw = File.AppendText("RegisteredUsers.txt"))
                 {
-                    sw.Write($"\n{tempLogin}:{tempPassword}:{birthDay.ToShortDateString()}");
+                    sw.Write($"{tempLogin}:{tempPassword}:{birthDay.ToShortDateString()}\n");
                 }
                 Console.WriteLine("Вы успешно зарегистрировались, пожалуйста пройдите процесс авторизации.");
                 Console.ReadKey();
@@ -108,21 +119,24 @@ namespace CshEzam2Quiz
             Console.WriteLine("Введите пароль:");
             tempPassword = Console.ReadLine();
 
-            using(StreamReader sr = File.OpenText("RegisteredUsers.txt"))
+            if (File.Exists("RegisteredUsers.txt"))
             {
-                string temp = sr.ReadToEnd();
-                string[] users = temp.Split('\n');
-
-                foreach(string user in users)
+                using (StreamReader sr = File.OpenText("RegisteredUsers.txt"))
                 {
-                    string[] data = user.Split(':');
-                    if (data[0] == tempLogin && data[1] == tempPassword)
+                    string temp = sr.ReadToEnd();
+                    string[] users = temp.Split('\n');
+
+                    foreach (string user in users)
                     {
-                        logIn = true;
-                        birthDay = data[2].Split('.');
-                        birthDay2 = new DateTime(Int32.Parse(birthDay[2]), Int32.Parse(birthDay[1]), Int32.Parse(birthDay[0]));
+                        string[] data = user.Split(':');
+                        if (data[0] == tempLogin && data[1] == tempPassword)
+                        {
+                            logIn = true;
+                            birthDay = data[2].Split('.');
+                            birthDay2 = new DateTime(Int32.Parse(birthDay[2]), Int32.Parse(birthDay[1]), Int32.Parse(birthDay[0]));
+                        }
+
                     }
-                    
                 }
             }
            if(logIn)
@@ -145,37 +159,53 @@ namespace CshEzam2Quiz
 
         private void ShowUserMenu()
         {
-            int userChoise;
+            int userChoise = -1;
             do
             {
-                Console.Clear();
-                Console.WriteLine($"Добрый день, {_user.ShowName()}");
-                Console.WriteLine("1. Старт новой викторины.");
-                Console.WriteLine("2. Посмотреть результаты прошлых викторин.");
-                Console.WriteLine("3. Посмотреть топ 20 по конкретной викторине.");
-                Console.WriteLine("4. Изменить пользовательские настойки.");
-                Console.WriteLine("0. Выход.");
-                
-                userChoise = Int32.Parse(Console.ReadLine());
-
-                switch (userChoise)
+                try
                 {
-                    case 1:
-                        StartNewQuiz();
-                        break;
-                    case 2:
-                        ShowMyResults();
-                        break;
-                    case 3:
-                        ShowTop20();
-                        break;
-                    case 4:
-                        ChangeUserSettings();
-                        break;
-                    default:
-                        break;
-                }
+                    Console.Clear();
+                    Console.WriteLine($"Добрый день, {_user.ShowName()}");
+                    Console.WriteLine("1. Старт новой викторины.");
+                    Console.WriteLine("2. Посмотреть результаты прошлых викторин.");
+                    Console.WriteLine("3. Посмотреть топ 20 по конкретной викторине.");
+                    Console.WriteLine("4. Изменить пользовательские настойки.");
+                    if (_user.ShowName() == "admin")
+                    {
+                        Console.WriteLine("5. Создание викторин и редактирование старых.");
+                    }
+                    Console.WriteLine("0. Выход.");
+
+
+                    userChoise = Int32.Parse(Console.ReadLine());
+
+                    switch (userChoise)
+                    {
+                        case 1:
+                            StartNewQuiz();
+                            break;
+                        case 2:
+                            ShowMyResults();
+                            break;
+                        case 3:
+                            ShowTop20();
+                            break;
+                        case 4:
+                            ChangeUserSettings();
+                            break;
+                        case 5:
+                            if (_user.ShowName() == "admin")
+                            {
+                                //редактирование викторин
+                                ShowAdminMenu();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }catch(Exception ex) { Console.WriteLine(ex.ToString()); }
             } while (userChoise != 0);
+
         }
 
         private void StartNewQuiz()
@@ -190,6 +220,7 @@ namespace CshEzam2Quiz
             Console.WriteLine("1. География.");
             Console.WriteLine("2. Наука.");
             Console.WriteLine("3. История.");
+            Console.WriteLine("4. Случайные вопросы");
 
             userChoise = Int32.Parse(Console.ReadLine());
             
@@ -204,9 +235,59 @@ namespace CshEzam2Quiz
                 case 3:
                     fileName = @"Quiz/QuizHistory.txt";
                     break;
+                case 4:
+                    fileName = @"Quiz/QuizRandom.txt";
+                    break;
                 default:
                     fileName = @"Quiz/QuizGeography.txt";
                     break;
+            }
+
+            //если выбраны рандомные вопросы, читаем все файлы и создаем новый со случайными вопросами
+            if(fileName == @"Quiz/QuizRandom.txt")
+            {
+                string temp = "";
+                using(StreamReader sr = File.OpenText(@"Quiz/QuizGeography.txt"))
+                {
+                    temp += sr.ReadToEnd();
+                }
+                using (StreamReader sr = File.OpenText(@"Quiz/QuizScience.txt"))
+                {
+                    temp += sr.ReadToEnd();
+                }
+                using (StreamReader sr = File.OpenText(@"Quiz/QuizHistory.txt"))
+                {
+                    temp += sr.ReadToEnd();
+                }
+
+                // массив со случайно выбранными вопросами
+                List<string> questionsForNEwFile = new List<string>();
+                //массив со всеми вопросами, взятыми из файлов
+                string[] allQuestions = temp.Split('\n');
+                //рандомная переменная
+                var rand = new Random();
+                //массив для проверки, что вопрос еще не включен 
+                int[] check = { };
+                while(questionsForNEwFile.Count < 10)
+                {
+                    int i;
+                    i = rand.Next(0, allQuestions.Length-1);
+                    if(!check.Contains(i))
+                    {
+                        check.Append(i);
+                        questionsForNEwFile.Add(allQuestions[i]);
+                    }
+                }
+
+                //создаем файл с рандомными вопросами
+
+                using (StreamWriter sw = File.CreateText(fileName))
+                {
+                    foreach(string str in questionsForNEwFile)
+                    {
+                        sw.WriteLine($"{str}") ;
+                    }
+                }
             }
 
             //проводим викторину, читаем вопросы из файла и сравниваем ответ пользователя с верным ответом
@@ -227,7 +308,12 @@ namespace CshEzam2Quiz
                         Console.WriteLine(data[3]);
                         Console.WriteLine(data[4]);
                         userQuizAnswer = Console.ReadLine();
+                        if(fileName == @"Quiz/QuizRandom.txt")
+                        {
+                            data[5] = data[5].Substring(0, data[5].Length - 1); //была проблема с символом /n в конце, по этому equals работал некорректно
+                        }
                         data[5] = data[5].Substring(0, data[5].Length - 1); //была проблема с символом /n в конце, по этому equals работал некорректно
+
                         if (String.Equals(userQuizAnswer.ToUpper(), data[5].ToUpper()))
                         {
                             Console.Clear();
@@ -258,38 +344,47 @@ namespace CshEzam2Quiz
         private void ShowMyResults()
         {
             string quizName = "";
-            using(StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
+            if (File.Exists("Results.txt"))
             {
-                string temp = sr.ReadToEnd();
-                string[] users = temp.Split('\n');
-                foreach(string user in users)
+                using (StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
                 {
-                    string[] data = user.Split(':');
-                   
-                    try // not working
+                    string temp = sr.ReadToEnd();
+                    string[] users = temp.Split('\n');
+                    foreach (string user in users)
                     {
-                        data[2] = data[2].Substring(0, data[2].Length - 1);
+                        string[] data = user.Split(':');
 
-                        if (data[2] == @"Quiz/QuizGeography.txt")
-                            quizName = "География";
-                        else if (data[2] == @"Quiz/QuizScience.txt")
-                            quizName = "Наука";
-                        else if (data[2] == @"Quiz/QuizHistory.txt")
-                            quizName = "История";
-
-                        if (data[0] == _user.ShowName())
+                        try
                         {
-                            Console.WriteLine($"{_user.ShowName()}, Количество баллов: {data[1]}, по викторине {quizName}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.ReadKey();
-                    }
+                            data[2] = data[2].Substring(0, data[2].Length - 1);
 
-                    
+                            if (data[2] == @"Quiz/QuizGeography.txt")
+                                quizName = "География";
+                            else if (data[2] == @"Quiz/QuizScience.txt")
+                                quizName = "Наука";
+                            else if (data[2] == @"Quiz/QuizHistory.txt")
+                                quizName = "История";
+                            else if (data[2] == @"Quiz/QuizRandom.txt")
+                                quizName = "Рандом";
+
+                            if (data[0] == _user.ShowName())
+                            {
+                                Console.WriteLine($"{_user.ShowName()}, Количество баллов: {data[1]}, по викторине {quizName}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.ReadKey();
+                        }
+
+
+                    }
+                    Console.ReadKey();
                 }
-                Console.ReadKey();
+            }
+            else
+            {
+                Console.WriteLine("Файл с результатами не существует.");
             }
         }
 
@@ -300,96 +395,123 @@ namespace CshEzam2Quiz
             Dictionary<string, int> ResultsGeography = new Dictionary<string, int>();
             Dictionary<string, int> ResultsHistory = new Dictionary<string, int>();
             Dictionary<string, int> ResultsScience = new Dictionary<string, int>();
+            Dictionary<string, int> ResultsRandom = new Dictionary<string, int>();
 
-            using (StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
+            if (File.Exists("Results.txt"))
             {
-                string temp = sr.ReadToEnd();
-                string[] users = temp.Split('\n');
-
-                foreach (string user in users)
+                using (StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
                 {
-                    string[] data = user.Split(':');
-                    //заполняем словари
-                    try
+                    string temp = sr.ReadToEnd();
+                    string[] users = temp.Split('\n');
+
+                    foreach (string user in users)
                     {
-                        data[2] = data[2].Substring(0, data[2].Length - 1);
+                        string[] data = user.Split(':');
+                        //заполняем словари
+                        try
+                        {
+                            data[2] = data[2].Substring(0, data[2].Length - 1);
 
-                        if (data[2] == @"Quiz/QuizGeography.txt")
-                            ResultsGeography.Add(data[0], Int32.Parse(data[1]));
-                        else if (data[2] == @"Quiz/QuizScience.txt")
-                            ResultsScience.Add(data[0], Int32.Parse(data[1]));
-                        else if (data[2] == @"Quiz/QuizHistory.txt")
-                            ResultsHistory.Add(data[0], Int32.Parse(data[1]));
+                            if (data[2] == @"Quiz/QuizGeography.txt")
+                                ResultsGeography.Add(data[0], Int32.Parse(data[1]));
+                            else if (data[2] == @"Quiz/QuizScience.txt")
+                                ResultsScience.Add(data[0], Int32.Parse(data[1]));
+                            else if (data[2] == @"Quiz/QuizHistory.txt")
+                                ResultsHistory.Add(data[0], Int32.Parse(data[1]));
+                            else if (data[2] == @"Quiz/QuizRandom.txt")
+                                ResultsRandom.Add(data[0], Int32.Parse(data[1]));
+                        }
+                        catch (Exception ex)
+                        {
+                        }
                     }
-                    catch (Exception ex)
+                    //сортируем словари
+                    var sortedDictHistory = from entry in ResultsHistory orderby entry.Value descending select entry;
+                    var sortedDictGeography = from entry in ResultsGeography orderby entry.Value descending select entry;
+                    var sortedDictScience = from entry in ResultsScience orderby entry.Value descending select entry;
+                    var sortedDictRandom = from entry in ResultsRandom orderby entry.Value descending select entry;
+
+                    Console.Clear();
+                    Console.WriteLine("По какой викторине вы хотите увидеть таблицу лидеров?");
+                    Console.WriteLine("1. История");
+                    Console.WriteLine("2. География");
+                    Console.WriteLine("3. Наука");
+                    Console.WriteLine("4. Рандом");
+                    userChoise = Int32.Parse(Console.ReadLine());
+
+                    switch (userChoise)
                     {
+                        case 1:
+                            if (sortedDictHistory != null)
+                            {
+                                foreach (KeyValuePair<string, int> entry in sortedDictHistory)
+                                {
+                                    Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                                }
+                                Console.ReadKey();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Список пуст.");
+                                Console.ReadKey();
+                            }
+                            break;
+                        case 2:
+                            if (sortedDictGeography != null)
+                            {
+                                foreach (KeyValuePair<string, int> entry in sortedDictGeography)
+                                {
+                                    Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                                }
+                                Console.ReadKey();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Список пуст.");
+                                Console.ReadKey();
+                            }
+                            break;
+                        case 3:
+                            if (sortedDictScience != null)
+                            {
+                                foreach (KeyValuePair<string, int> entry in sortedDictScience)
+                                {
+                                    Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                                }
+                                Console.ReadKey();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Список пуст.");
+                                Console.ReadKey();
+                            }
+                            break;
+                        case 4:
+                            if (sortedDictRandom != null)
+                            {
+                                foreach (KeyValuePair<string, int> entry in sortedDictRandom)
+                                {
+                                    Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
+                                }
+                                Console.ReadKey();
+                            }
+                            else
+                            {
+                                Console.WriteLine("Список пуст.");
+                                Console.ReadKey();
+                            }
+                            break;
+                        default:
+                            break;
                     }
+
                 }
-                //сортируем словари
-                var sortedDictHistory = from entry in ResultsHistory orderby entry.Value descending select entry;
-                var sortedDictGeography = from entry in ResultsGeography orderby entry.Value descending select entry;
-                var sortedDictScience = from entry in ResultsScience orderby entry.Value descending select entry;
-
-                Console.Clear();
-                Console.WriteLine("По какой викторине вы хотите увидеть таблицу лидеров?");
-                Console.WriteLine("1. История");
-                Console.WriteLine("2. География");
-                Console.WriteLine("3. Наука");
-                userChoise = Int32.Parse(Console.ReadLine());
-
-                switch(userChoise)
-                {
-                    case 1:
-                        if(sortedDictHistory != null)
-                        {
-                            foreach(KeyValuePair<string, int> entry in sortedDictHistory)
-                            {
-                                Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
-                            }
-                            Console.ReadKey();
-                        }else
-                        {
-                            Console.WriteLine("Список пуст.");
-                            Console.ReadKey();
-                        }
-                        break;
-                    case 2:
-                        if (sortedDictGeography != null)
-                        {
-                            foreach (KeyValuePair<string, int> entry in sortedDictGeography)
-                            {
-                                Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
-                            }
-                            Console.ReadKey();
-                        }
-                        else
-                        {
-                            Console.WriteLine("Список пуст.");
-                            Console.ReadKey();
-                        }
-                        break;
-                    case 3:
-                        if (sortedDictScience != null)
-                        {
-                            foreach (KeyValuePair<string, int> entry in sortedDictScience)
-                            {
-                                Console.WriteLine($"{entry.Key}\t{entry.Value} баллов.");
-                            }
-                            Console.ReadKey();
-                        }
-                        else
-                        {
-                            Console.WriteLine("Список пуст.");
-                            Console.ReadKey();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
+            }
+            else
+            {
+                Console.WriteLine("Файл с результатами не существует.");
             }
         }
-
 
         private void ChangeUserSettings()
         {
@@ -411,6 +533,132 @@ namespace CshEzam2Quiz
                 DateTime newBD = DateTime.Parse(Console.ReadLine());
                 _user.ChangeBirthDay(newBD);
             }
+        }
+
+        private void MakeNewQuiz()
+        {
+            string name = ""; //название викторины на английском
+            
+            List<string> questions = new List<string>();
+            Console.WriteLine("Напишите название викторины на английском:");
+            name = Console.ReadLine();
+
+            for (int i = 0; i < 10; i++)
+            {
+                string q = ""; // вопрос с ответами
+                string tmp = "";
+                Console.WriteLine($"Введите {i+1} вопрос:");
+                q = Console.ReadLine();
+                q += ":";
+                Console.WriteLine("Введите первый предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите второй предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите третий предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите четвертый предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите правильный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp;
+                questions.Add(q);
+            }
+
+            using (StreamWriter sw = File.AppendText($"Quiz/Quiz{name}.txt"))
+            {
+                foreach(string s in questions)
+                {
+                    sw.Write($"{s}\n");
+                }
+            }
+
+
+        }
+
+        private void AddQuestionsInQuiz()
+        {
+
+            string choosenFile = "";
+            int numberOfQ = 0;
+            Console.WriteLine("Выберете файл для добавления вопроса:");
+            foreach (string file in Directory.EnumerateFiles("Quiz", "*.txt"))
+            {
+                Console.WriteLine(file);
+            }
+            choosenFile = Console.ReadLine();
+
+            Console.WriteLine("Сколько вопросов вы хотите добавить?:");
+
+            numberOfQ = Int32.Parse(Console.ReadLine());
+
+            List<string> questions = new List<string>();
+
+            for (int i = 0; i < numberOfQ; i++)
+            {
+                string q = ""; // вопрос с ответами
+                string tmp = "";
+                Console.WriteLine($"Введите {i+1} вопрос:");
+                q = Console.ReadLine();
+                q += ":";
+                Console.WriteLine("Введите первый предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите второй предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите третий предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите четвертый предложенный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp + ":";
+                Console.WriteLine("Введите правильный ответ:");
+                tmp = Console.ReadLine();
+                q += tmp;
+                questions.Add(q);
+            }
+
+            using (StreamWriter sw = File.AppendText(@choosenFile))
+            {
+                foreach (string s in questions)
+                {
+                    sw.WriteLine($"{s}");
+                }
+            }
+        }
+
+        private void ShowAdminMenu()
+        {
+            int choise;
+            Console.Clear();
+            Console.WriteLine("1. Создать новую викторину.");
+            Console.WriteLine("2. Добавить вопросы в существующую викторину.");
+            Console.WriteLine("0. Выход.");
+
+            try
+            {
+                choise = Int32.Parse(Console.ReadLine());
+
+                switch (choise)
+                {
+                    case 1:
+                        MakeNewQuiz();
+                        break;
+                    case 2:
+                        AddQuestionsInQuiz();
+                        break;
+                    case 0:
+                        ShowUserMenu();
+                        break;
+                    default:
+                        ShowUserMenu();
+                        break;
+                }
+            }catch(Exception ex) { }
         }
     }
 }
