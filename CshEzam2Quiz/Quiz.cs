@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.Remoting.Contexts;
 using System.Xml.Linq;
+using System.Security.Cryptography;
 
 namespace CshEzam2Quiz
 {
@@ -67,6 +68,7 @@ namespace CshEzam2Quiz
             tempLogin = Console.ReadLine();
             Console.WriteLine("Введите пароль:");
             tempPassword = Console.ReadLine();
+            tempPassword = MakeMeMD5(tempPassword);
             Console.WriteLine("Введите дату рождения в формате дд.мм.гггг: ");
             birthDayString = Console.ReadLine();
             string[] birthDayArr = birthDayString.Split('.');
@@ -129,7 +131,7 @@ namespace CshEzam2Quiz
                     foreach (string user in users)
                     {
                         string[] data = user.Split(':');
-                        if (data[0] == tempLogin && data[1] == tempPassword)
+                        if (data[0] == tempLogin && IsGoodPass(tempPassword, data[1]))
                         {
                             logIn = true;
                             birthDay = data[2].Split('.');
@@ -620,6 +622,28 @@ namespace CshEzam2Quiz
                         break;
                 }
             }catch(Exception ex) { }
+        }
+
+        private string MakeMeMD5(string password)
+        {
+            byte[] byteHashedPassword;
+            byte[] bytePassword = Encoding.UTF8.GetBytes(password);
+
+            using (MD5 md5 = MD5.Create())
+            {
+                byteHashedPassword = md5.ComputeHash(bytePassword);
+            }
+            string hashPassword = BitConverter.ToString(byteHashedPassword).Replace("-", "");
+
+            return hashPassword;
+        }
+
+        private bool IsGoodPass(string password, string md5)
+        {
+            if (MakeMeMD5(password) == md5)
+                return true;
+            else
+                return false;
         }
     }
 }
