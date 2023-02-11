@@ -210,54 +210,29 @@ namespace CshEzam2Quiz
 
         private void StartNewQuiz()
         {
-
-            int userChoise;
             int points = 0;
             string fileName;
             string userQuizAnswer = "";
 
             Console.WriteLine("Выберете викторину:");
-            Console.WriteLine("1. География.");
-            Console.WriteLine("2. Наука.");
-            Console.WriteLine("3. История.");
-            Console.WriteLine("4. Случайные вопросы");
 
-            userChoise = Int32.Parse(Console.ReadLine());
-            
-            switch(userChoise)
+            foreach (string file in Directory.EnumerateFiles("Quiz", "*.txt"))
             {
-                case 1:
-                    fileName = @"Quiz/QuizGeography.txt";
-                    break;
-                case 2:
-                    fileName = @"Quiz/QuizScience.txt";
-                    break;
-                case 3:
-                    fileName = @"Quiz/QuizHistory.txt";
-                    break;
-                case 4:
-                    fileName = @"Quiz/QuizRandom.txt";
-                    break;
-                default:
-                    fileName = @"Quiz/QuizGeography.txt";
-                    break;
+                Console.WriteLine(file);
             }
 
+            fileName = Console.ReadLine();
+
             //если выбраны рандомные вопросы, читаем все файлы и создаем новый со случайными вопросами
-            if(fileName == @"Quiz/QuizRandom.txt")
+            if(fileName == "Random")
             {
                 string temp = "";
-                using(StreamReader sr = File.OpenText(@"Quiz/QuizGeography.txt"))
+                foreach (string file in Directory.EnumerateFiles("Quiz", "*.txt"))
                 {
-                    temp += sr.ReadToEnd();
-                }
-                using (StreamReader sr = File.OpenText(@"Quiz/QuizScience.txt"))
-                {
-                    temp += sr.ReadToEnd();
-                }
-                using (StreamReader sr = File.OpenText(@"Quiz/QuizHistory.txt"))
-                {
-                    temp += sr.ReadToEnd();
+                    using (StreamReader sr = File.OpenText(file))
+                    {
+                        temp += sr.ReadToEnd();
+                    }
                 }
 
                 // массив со случайно выбранными вопросами
@@ -281,14 +256,17 @@ namespace CshEzam2Quiz
 
                 //создаем файл с рандомными вопросами
 
-                using (StreamWriter sw = File.CreateText(fileName))
+                using (StreamWriter sw = File.CreateText(@"Quiz\QuizRandom.txt"))
                 {
                     foreach(string str in questionsForNEwFile)
                     {
-                        sw.WriteLine($"{str}") ;
+                        sw.Write($"{str}:\n") ;
                     }
                 }
             }
+
+            if (fileName == "Random")
+                fileName = @"Quiz\QuizRandom.txt";
 
             //проводим викторину, читаем вопросы из файла и сравниваем ответ пользователя с верным ответом
             using (StreamReader sr = File.OpenText(fileName))
@@ -308,11 +286,6 @@ namespace CshEzam2Quiz
                         Console.WriteLine(data[3]);
                         Console.WriteLine(data[4]);
                         userQuizAnswer = Console.ReadLine();
-                        if(fileName == @"Quiz/QuizRandom.txt")
-                        {
-                            data[5] = data[5].Substring(0, data[5].Length - 1); //была проблема с символом /n в конце, по этому equals работал некорректно
-                        }
-                        data[5] = data[5].Substring(0, data[5].Length - 1); //была проблема с символом /n в конце, по этому equals работал некорректно
 
                         if (String.Equals(userQuizAnswer.ToUpper(), data[5].ToUpper()))
                         {
@@ -336,14 +309,13 @@ namespace CshEzam2Quiz
                 //запись результатов в файл
                 using(StreamWriter sw = File.AppendText("Results.txt"))
                 {
-                    sw.WriteLine($"{_user.ShowName()}:{points}:{fileName}");
+                    sw.WriteLine($"{_user.ShowName()}:{points}:{fileName}:\n");
                 }
 
             }
         }
         private void ShowMyResults()
         {
-            string quizName = "";
             if (File.Exists("Results.txt"))
             {
                 using (StreamReader sr = File.OpenText("Results.txt")) // формат файла имя_пользователя:баллы:название_викторины
@@ -356,20 +328,9 @@ namespace CshEzam2Quiz
 
                         try
                         {
-                            data[2] = data[2].Substring(0, data[2].Length - 1);
-
-                            if (data[2] == @"Quiz/QuizGeography.txt")
-                                quizName = "География";
-                            else if (data[2] == @"Quiz/QuizScience.txt")
-                                quizName = "Наука";
-                            else if (data[2] == @"Quiz/QuizHistory.txt")
-                                quizName = "История";
-                            else if (data[2] == @"Quiz/QuizRandom.txt")
-                                quizName = "Рандом";
-
                             if (data[0] == _user.ShowName())
                             {
-                                Console.WriteLine($"{_user.ShowName()}, Количество баллов: {data[1]}, по викторине {quizName}");
+                                Console.WriteLine($"{_user.ShowName()}, Количество баллов: {data[1]}, по викторине {data[2]}");
                             }
                         }
                         catch (Exception ex)
@@ -564,7 +525,7 @@ namespace CshEzam2Quiz
                 q += tmp + ":";
                 Console.WriteLine("Введите правильный ответ:");
                 tmp = Console.ReadLine();
-                q += tmp;
+                q += tmp+":";
                 questions.Add(q);
             }
 
@@ -618,7 +579,7 @@ namespace CshEzam2Quiz
                 q += tmp + ":";
                 Console.WriteLine("Введите правильный ответ:");
                 tmp = Console.ReadLine();
-                q += tmp;
+                q += tmp+":";
                 questions.Add(q);
             }
 
@@ -626,7 +587,7 @@ namespace CshEzam2Quiz
             {
                 foreach (string s in questions)
                 {
-                    sw.WriteLine($"{s}");
+                    sw.Write($"{s}\n");
                 }
             }
         }
